@@ -3,6 +3,8 @@ package bri;
 import java.util.List;
 import java.util.Vector;
 
+import codage.Decodage;
+
 
 public class ServiceRegistry {
 	// cette classe est un registre de services
@@ -33,10 +35,10 @@ public class ServiceRegistry {
 	
 // liste les activit?s pr?sentes
 	public static String toStringue() {
-		String result = "Activités présentes :##";
+		String result = "Activités présentes :\n";
 		for(Class<?> c : servicesClasses)
-			result+=c.toString();
-		return result;
+			result+=c.toString()+"\n";
+		return Decodage.encoder(result);
 	}
 
 }

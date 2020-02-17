@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import codage.Decodage;
+
 /*
  * Ce client se connecte à un serveur dont le protocole est 
  * menu-choix-question-réponse client-réponse service
@@ -16,8 +18,8 @@ import java.net.Socket;
  * ainsi que tout service qui pose une question, traite la donnée du client et envoie sa réponse 
  * mais est bien sur susceptible de (nombreuses) améliorations
  */
-class Application {
-		private final static int PORT_SERVICE = 3000;
+public class Clientprog {
+		private final static int PORT_SERVICE = 3500;
 		private final static String HOST = "localhost"; 
 	
 	public static void main(String[] args) {
@@ -29,27 +31,34 @@ class Application {
 			PrintWriter sout = new PrintWriter (s.getOutputStream ( ), true);
 			BufferedReader clavier = new BufferedReader(new InputStreamReader(System.in));			
 		
-			System.out.println("Connecté au serveur " + s.getInetAddress() + ":"+ s.getPort());
+			System.out.println("Connecté au serveur pour programmeurs BRi");
 			
 			String line;
-		// menu et choix du service
-			line = sin.readLine();
-			System.out.println(line.replaceAll("##", "\n"));
-		// saisie/envoie du choix
-			sout.println(clavier.readLine());
-			
-		// réception/affichage de la question
-			System.out.println(sin.readLine());
-		// saisie clavier/envoie au service de la réponse
-			sout.println(clavier.readLine());
-		// réception/affichage de la réponse
-			System.out.println(sin.readLine());
+			do {
+				// menu et choix du service
+				line = sin.readLine();
+				if (line == null)
+					break; // fermeture par le service
 				
-			
-		}
-		catch (IOException e) { System.err.println("Fin de la connexion"); }
+				// On décode le message reçu (les #n décodés en \n)
+				System.out.println(Decodage.decoder(line));
+				System.out.print("=>");
+				
+				line = clavier.readLine();
+				if (line.equals(""))
+					break; // fermeture par le client
+				// saisie/envoie du choix
+				sout.println(line);
+				
+			} while (true);
+			s.close();
+		} catch (IOException e) {
+			System.err.println("Fin du service");
+		}	
 		// Refermer dans tous les cas la socket
-		try { if (s != null) s.close(); } 
-		catch (IOException e2) { ; }		
+		try {
+			if (s != null)
+				s.close();
+		} catch (IOException e2) {}
 	}
 }
