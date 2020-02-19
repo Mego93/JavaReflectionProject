@@ -8,7 +8,6 @@ import java.net.Socket;
 
 public class TestBRi {
 
-	@SuppressWarnings("unused")
 	static void validation(Class<?> classe) throws Exception {
 		int i = classe.getModifiers();
 		StringBuilder sb = new StringBuilder();

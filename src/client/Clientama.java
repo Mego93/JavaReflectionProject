@@ -8,16 +8,7 @@ import java.net.Socket;
 
 import codage.Decodage;
 
-/*
- * Ce client se connecte à un serveur dont le protocole est 
- * menu-choix-question-réponse client-réponse service
- * il n'y a qu'un échange (pas de boucle)
- * la réponse est saisie au clavier en String
- * 
- * Le protocole d'échange est suffisant pour le tp4 avec ServiceInversion 
- * ainsi que tout service qui pose une question, traite la donnée du client et envoie sa réponse 
- * mais est bien sur susceptible de (nombreuses) améliorations
- */
+
 public class Clientama {
 		private final static int PORT_SERVICE = 3000;
 		private final static String HOST = "localhost"; 

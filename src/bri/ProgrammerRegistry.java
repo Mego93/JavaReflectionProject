@@ -22,6 +22,12 @@ public class ProgrammerRegistry {
 		}
 		return null;
 	}
+	
+	public static void addProgrammer(Programmer p) {
+		if(programmerList.contains(p))
+			return;
+		programmerList.add(p);
+	}
 
 	
 	public static boolean isPassword(Programmer p,String password) {
