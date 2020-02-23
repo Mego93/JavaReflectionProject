@@ -2,11 +2,9 @@ package appli;
 
 import java.net.MalformedURLException;
 
-
 import bri.Programmer;
 import bri.ProgrammerRegistry;
-import serveurs.ServeurAmateurBRi;
-import serveurs.ServeurProgBRi;
+import bri.ServeurBRi;
 
 public class BRiLaunch {
 	private final static int PORT_SERVICE = 3000;
@@ -20,11 +18,10 @@ public class BRiLaunch {
 		ProgrammerRegistry.getProgrammerList().add( new Programmer("link", "global", "ftp://localhost:2121/link/"));
 
 
-		new Thread(new ServeurAmateurBRi(PORT_SERVICE)).start();
-		System.out.println("Serveur pour amateurs lancé, port " + PORT_SERVICE);
-		new Thread(new ServeurProgBRi(PORT_PROG)).start();
-		System.out.println("Serveur pour programmeurs lancés, port " + PORT_PROG);
-		
+		new Thread(new ServeurBRi(PORT_PROG)).start();
+		System.out.println("Serveur pour programmeurs lancé, port "+ PORT_PROG  );	
+		new Thread(new ServeurBRi(PORT_SERVICE)).start();
+		System.out.println("Serveur pour amateurs lancé, port "+ PORT_SERVICE );	
 
 	}
 }
