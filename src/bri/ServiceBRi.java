@@ -29,13 +29,9 @@ public class ServiceBRi implements Runnable {
 		// URLClassLoader sur ftp
 		try {
 
-			URLClassLoader urlcl = new URLClassLoader(new URL[] { new URL("ftp://localhost:2121/classes/") }) {
-				@Override
-				public Class<?> loadClass(String name) throws ClassNotFoundException {
-					return findClass(name);
-				}
-			};
-
+			URLClassLoader urlcl = new URLClassLoader(
+					new URL[] { new URL("ftp://localhost:2121/") });
+			
 			BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 			PrintWriter out = new PrintWriter(client.getOutputStream(), true);
 			boolean stop = false;
@@ -90,18 +86,6 @@ public class ServiceBRi implements Runnable {
 							// Si le login correspond au mot de passe donné
 							if (ProgrammerRegistry.isPassword(p, password)) {
 								do {
-									URLClassLoader urlclProg = new URLClassLoader(
-											new URL[] { new URL("ftp://localhost:2121/") });
-//												public Class<?> loadClass(String name) throws ClassNotFoundException {
-//													if("toto.ServiceInversion".equals(name)) {
-//														out.print(Decodage.encoder("Recherche.."));
-//														return findClass(name);
-//													}else{
-//														out.print(Decodage.encoder("Classe non trouvée dans le serveur ftp \n"));
-//														return super.loadClass(name);
-//													}
-//												}
-//											};
 									out.println(Decodage.encoder(
 											"Que souhaitez vous faire (écrire le chiffre correspondant ou ne rien écrire si vous voulez passer) ? \n"
 													+ "1: Fournir un nouveau service\n"
@@ -113,10 +97,10 @@ public class ServiceBRi implements Runnable {
 									// 1 : Ajout de la classe donnée
 									case "1":
 										out.println(Decodage
-												.encoder("Donnez le nom de la classe à ajouter (plus son package):"));
+												.encoder("Donnez le nom de la classe à ajouter (situé dans votre repository):"));
 										String classeName = in.readLine();
-										Class<? extends Service> c = (Class<? extends Service>) urlclProg
-												.loadClass(classeName);
+										Class<? extends Service> c = (Class<? extends Service>) urlcl
+												.loadClass(p.getLogin()+"."+classeName);
 										if (ServiceRegistry.containsClass(c)) {
 											out.print(
 													Decodage.encoder("Classe déjà présente dans le ServiceRegistry\n"));
@@ -133,7 +117,7 @@ public class ServiceBRi implements Runnable {
 										out.println(Decodage.encoder(
 												"Donnez le nom de la classe à mettre à jour (plus son package):"));
 										String classeName2 = in.readLine();
-										Class<? extends Service> c2 = (Class<? extends Service>) urlclProg
+										Class<? extends Service> c2 = (Class<? extends Service>) urlcl
 												.loadClass(classeName2);
 										if (!ServiceRegistry.containsClass(c2)) {
 											out.print(
