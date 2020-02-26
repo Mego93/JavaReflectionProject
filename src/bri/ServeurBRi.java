@@ -32,6 +32,7 @@ public class ServeurBRi implements Runnable {
 	 */
 	public void run() {
 		try {
+			while(true)
 			new ServiceBRi(listen_socket.accept()).start();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

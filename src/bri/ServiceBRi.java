@@ -29,12 +29,19 @@ public class ServiceBRi implements Runnable {
 		// URLClassLoader sur ftp
 		try {
 
-			URLClassLoader urlcl = new URLClassLoader(new URL[] { new URL("ftp://localhost:2121/classes/") });
+			URLClassLoader urlcl = new URLClassLoader(new URL[] { new URL("ftp://localhost:2121/classes/") }) {
+				@Override
+				public Class<?> loadClass(String name) throws ClassNotFoundException {
+					return findClass(name);
+				}
+			};
+
 			BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 			PrintWriter out = new PrintWriter(client.getOutputStream(), true);
 			boolean stop = false;
 
 			String error = "";
+			System.out.println(client.getLocalPort());
 			switch (client.getLocalPort()) {
 
 			case 3000:
@@ -84,7 +91,17 @@ public class ServiceBRi implements Runnable {
 							if (ProgrammerRegistry.isPassword(p, password)) {
 								do {
 									URLClassLoader urlclProg = new URLClassLoader(
-											new URL[] { new URL(p.getAdresseFtp()) });
+											new URL[] { new URL("ftp://localhost:2121/") });
+//												public Class<?> loadClass(String name) throws ClassNotFoundException {
+//													if("toto.ServiceInversion".equals(name)) {
+//														out.print(Decodage.encoder("Recherche.."));
+//														return findClass(name);
+//													}else{
+//														out.print(Decodage.encoder("Classe non trouvée dans le serveur ftp \n"));
+//														return super.loadClass(name);
+//													}
+//												}
+//											};
 									out.println(Decodage.encoder(
 											"Que souhaitez vous faire (écrire le chiffre correspondant ou ne rien écrire si vous voulez passer) ? \n"
 													+ "1: Fournir un nouveau service\n"
@@ -185,12 +202,13 @@ public class ServiceBRi implements Runnable {
 				} while (!stop);
 				break;
 			default:
-				out.print("Erreur");
+				out.print(Decodage.encoder("Erreur"));
 				break;
 			}
 			try {
 				client.close();
 			} catch (IOException e2) {
+		
 			}
 
 		} catch (Exception e) {

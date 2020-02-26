@@ -33,7 +33,6 @@ public class Clientprog {
 				// On décode le message reçu (les #n décodés en \n)
 				System.out.println(Decodage.decoder(line));
 				System.out.print("=>");
-				
 				line = clavier.readLine();
 				if (line.equals(""))
 					break; // fermeture par le client
