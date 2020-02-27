@@ -34,7 +34,7 @@ public class Clientprog {
 				System.out.println(Decodage.decoder(line));
 				System.out.print("=>");
 				line = clavier.readLine();
-				if (line.equals(""))
+				if (line.equals("EMERGENCY"))
 					break; // fermeture par le client
 				// saisie/envoie du choix
 				sout.println(line);

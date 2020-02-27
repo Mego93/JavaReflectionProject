@@ -15,7 +15,8 @@ import bri.ServiceRegistry;
 import codage.Decodage;
 
 public class ServiceBRi implements Runnable {
-
+	private final static int PORT_SERVICE = 3000;
+	private final static int PORT_PROG = 3500;
 	private Socket client;
 
 	public ServiceBRi(Socket socket) {
@@ -25,22 +26,19 @@ public class ServiceBRi implements Runnable {
 
 	@SuppressWarnings("unchecked")
 	public void run() {
-
-		// URLClassLoader sur ftp
 		try {
-
-			URLClassLoader urlcl = new URLClassLoader(
-					new URL[] { new URL("ftp://localhost:2121/") });
-			
+			CustomClassLoader customCl = new CustomClassLoader();
+			URLClassLoader urlcl = new URLClassLoader(new URL[] { new URL("ftp://localhost:2121/") }); // A refaire ? Chaque ecoute remet a jour l'urlcl ?
+			customCl.setUrlcl(urlcl);
 			BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 			PrintWriter out = new PrintWriter(client.getOutputStream(), true);
 			boolean stop = false;
 
 			String error = "";
-			System.out.println(client.getLocalPort());
+			System.out.println("Connexion d'un client au port : " + client.getLocalPort());
 			switch (client.getLocalPort()) {
 
-			case 3000:
+			case PORT_SERVICE:
 				do {
 					try {
 
@@ -49,13 +47,21 @@ public class ServiceBRi implements Runnable {
 								.encoder(ServiceRegistry.toStringue() + "\nTapez le numéro de service désiré :"));
 						int choix = Integer.parseInt(in.readLine());
 						if (ServiceRegistry.containsClass(ServiceRegistry.getServiceClass(choix))) {
-							try {
-								ServiceRegistry.getServiceClass(choix).getConstructor(Socket.class).newInstance(client)
-										.run();
-							} catch (Exception e) {
-								e.printStackTrace();
+							System.out.println("Contenu");
+							if (ServiceRegistry.getEtatService(ServiceRegistry.getServiceClass(choix))) {
+								System.out.println("Démarré");
+								try {
+									ServiceRegistry.getServiceClass(choix).getConstructor(Socket.class)
+											.newInstance(client).run();
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							} else {
+								System.out.println("Non démarré");
+								out.print(Decodage.encoder("Service non démarré\n"));
 							}
 						} else {
+							System.out.println("Inconnu");
 							out.print(Decodage.encoder("Service inconnu\n"));
 						}
 
@@ -70,7 +76,7 @@ public class ServiceBRi implements Runnable {
 				} while (!stop);
 				break;
 
-			case 3500:
+			case PORT_PROG:
 				do {
 					try {
 						boolean passwordError = false;
@@ -83,49 +89,50 @@ public class ServiceBRi implements Runnable {
 							Programmer p = ProgrammerRegistry.containsLogin(login);
 							out.println(Decodage.encoder("Bonjour " + login + ", votre mot de passe : "));
 							String password = in.readLine();
+
 							// Si le login correspond au mot de passe donné
 							if (ProgrammerRegistry.isPassword(p, password)) {
 								do {
-									out.println(Decodage.encoder(
-											"Que souhaitez vous faire (écrire le chiffre correspondant ou ne rien écrire si vous voulez passer) ? \n"
-													+ "1: Fournir un nouveau service\n"
-													+ "2: Mettre-à-jour un service\n"
-													+ "3: Déclarer un changement d’adresse de votre serveur ftp"));
+									out.println(Decodage.encoder(ServiceRegistry.toStringue()
+											+ "\nQue souhaitez vous faire (écrire le chiffre correspondant ou ne rien écrire si vous voulez passer) ? \n"
+											+ "1: Fournir un nouveau service\n" + "2: Mettre-à-jour un service\n"
+											+ "3: Déclarer un changement d’adresse de votre serveur ftp\n"
+											+ "4: Arrêter ou démarrer un service\n" + "5: Désinstaller un service"));
 									String choix = in.readLine();
 									switch (choix) {
 
 									// 1 : Ajout de la classe donnée
 									case "1":
-										out.println(Decodage
-												.encoder("Donnez le nom de la classe à ajouter (situé dans votre repository):"));
+										out.println(Decodage.encoder(
+												"Donnez le nom de la classe à ajouter (situé dans votre repository):"));
 										String classeName = in.readLine();
-										Class<? extends Service> c = (Class<? extends Service>) urlcl
-												.loadClass(p.getLogin()+"."+classeName);
-										if (ServiceRegistry.containsClass(c)) {
+										Class<? extends Service> classeAjout = (Class<? extends Service>) urlcl
+												.loadClass(p.getLogin() + "." + classeName);
+										if (ServiceRegistry.containsClass(classeAjout)) {
 											out.print(
 													Decodage.encoder("Classe déjà présente dans le ServiceRegistry\n"));
 											break;
 										}
-										ServiceRegistry.addService(c);
+										ServiceRegistry.addService(classeAjout);
 										out.print(Decodage.encoder(
-												"Classe " + c.getSimpleName() + " ajoutée dans le ServiceRegistry\n"));
+												"Classe " + classeAjout.getSimpleName() + " ajoutée dans le ServiceRegistry\n"));
 										System.out.println(Decodage.decoder(ServiceRegistry.toStringue()));
 										break;
 
 									// 2 : Mise à jour de la classe donnée
 									case "2":
 										out.println(Decodage.encoder(
-												"Donnez le nom de la classe à mettre à jour (plus son package):"));
+												"Donnez le nom de la classe à mettre à jour (situé dans votre repository et dans le ServiceRegistry):"));
 										String classeName2 = in.readLine();
-										Class<? extends Service> c2 = (Class<? extends Service>) urlcl
-												.loadClass(classeName2);
-										if (!ServiceRegistry.containsClass(c2)) {
+										Class<? extends Service> classeUpdate = (Class<? extends Service>) urlcl
+												.loadClass(p.getLogin() + "." + classeName2);
+										if (!ServiceRegistry.containsClass(classeUpdate)) {
 											out.print(
 													Decodage.encoder("Classe non présente, mise à jour impossible\n"));
 											break;
 										}
-										ServiceRegistry.replaceService(c2);
-										out.print(Decodage.encoder("Classe " + c2.getSimpleName()
+										ServiceRegistry.replaceService(classeUpdate);
+										out.print(Decodage.encoder("Classe " + classeUpdate.getSimpleName()
 												+ " mise à jour dans le ServiceRegistry\n"));
 										System.out.println(Decodage.decoder(ServiceRegistry.toStringue()));
 										break;
@@ -140,6 +147,60 @@ public class ServiceBRi implements Runnable {
 										out.print("à " + newAddress + "\n");
 										break;
 
+									// 4 : Démarrage ou arrêt d'un service
+									case "4":
+										out.println(Decodage.encoder(
+												"Voulez vous démarrer ou arrêter un service (ne rien écrire pour partir) ? (1/2)"));
+										String repArretDem = in.readLine();
+										switch (repArretDem) {
+
+										case "1":
+											out.println(Decodage
+													.encoder(ServiceRegistry.toStringue() + "\nTapez le numéro de service désiré :"));
+											int choixDem = Integer.parseInt(in.readLine());
+											Class<? extends Service> classeStart = ServiceRegistry.getServiceClass(choixDem);
+											if (ServiceRegistry.getEtatService(classeStart) == true) {
+												out.print(Decodage.encoder("Le service est déjà démarré \n"));
+												break;
+											}
+											if (ServiceRegistry.changeService(classeStart, true)) {
+												out.print(Decodage.encoder("Service démarré \n"));
+											} else {
+												out.print(Decodage.encoder("Erreur de démarrage \n"));
+											}
+											break;
+										case "2":
+											out.println(Decodage
+													.encoder(ServiceRegistry.toStringue() + "\nTapez le numéro de service désiré :"));
+											int choixArret = Integer.parseInt(in.readLine());
+											Class<? extends Service> classeStop = ServiceRegistry.getServiceClass(choixArret);
+											if (ServiceRegistry.getEtatService(classeStop) == false) {
+												out.print(Decodage.encoder("Le service est déjà arrêté \n"));
+												break;
+											}
+											if (ServiceRegistry.changeService(classeStop, false)) {
+												out.print(Decodage.encoder("Service arrêté \n"));
+											} else {
+												out.print(Decodage.encoder("Erreur d'arrêt \n"));
+											}
+											break;
+										default:
+											out.print(Decodage.encoder("Aucune action sélectionnée\n"));
+											break;
+										}
+										break;
+
+									// 5 : Désinstallation d'un service
+									case "5:":
+										out.println(Decodage.encoder("Quel service à désinstaller ?"));
+										String repDesinstal = in.readLine();
+										urlcl = customCl.uninstallClass(repDesinstal, urlcl);
+										if (urlcl.equals(null)) {
+											out.print(Decodage.encoder("Desinstallation impossible"));
+											break;
+										}
+										out.print(Decodage.encoder("Désinstallation effectuée"));
+										break;
 									// Non reconnu / rien : on sort du switch
 									default:
 										out.print(Decodage.encoder("Aucune action sélectionnée\n"));
@@ -148,7 +209,7 @@ public class ServiceBRi implements Runnable {
 
 									// Fin du service
 									out.println(Decodage.encoder(
-											"Voulez vous arreter ou vous déconnecter ? (stop/deco/caractère quelconque)"));
+											"Fin du service, voulez vous arreter ou vous déconnecter ? (stop/deco/caractère quelconque)"));
 									String arretProg = in.readLine();
 
 									// Déconnexion du programmeur
@@ -181,18 +242,19 @@ public class ServiceBRi implements Runnable {
 						}
 
 					} catch (Exception e) {
-						// Fin du service
+						e.printStackTrace();
+						out.print(Decodage.encoder("Exception attrapée, relancement\n"));
 					}
 				} while (!stop);
 				break;
 			default:
-				out.print(Decodage.encoder("Erreur"));
+				out.println(Decodage.encoder("Erreur"));
 				break;
 			}
 			try {
 				client.close();
 			} catch (IOException e2) {
-		
+
 			}
 
 		} catch (Exception e) {
