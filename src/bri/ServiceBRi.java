@@ -24,12 +24,17 @@ public class ServiceBRi implements Runnable {
 
 	}
 
+	/* L'URLClassLoader est déclaré avant le switch et déclaré
+	 * lors des ajouts/majs de services avant d'être mis à null
+	 * En effet, le garbage collector récuperera l'urlcl 
+	 * référencé à null
+	 */
+
+	
 	@SuppressWarnings("unchecked")
 	public void run() {
 		try {
-			CustomClassLoader customCl = new CustomClassLoader();
-			URLClassLoader urlcl = new URLClassLoader(new URL[] { new URL("ftp://localhost:2121/") }); // A refaire ? Chaque ecoute remet a jour l'urlcl ?
-			customCl.setUrlcl(urlcl);
+			URLClassLoader urlcl; 
 			BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 			PrintWriter out = new PrintWriter(client.getOutputStream(), true);
 			boolean stop = false;
@@ -103,6 +108,7 @@ public class ServiceBRi implements Runnable {
 
 									// 1 : Ajout de la classe donnée
 									case "1":
+										urlcl = new URLClassLoader(new URL[] { new URL("ftp://localhost:2121/") });
 										out.println(Decodage.encoder(
 												"Donnez le nom de la classe à ajouter (situé dans votre repository):"));
 										String classeName = in.readLine();
@@ -116,11 +122,12 @@ public class ServiceBRi implements Runnable {
 										ServiceRegistry.addService(classeAjout);
 										out.print(Decodage.encoder(
 												"Classe " + classeAjout.getSimpleName() + " ajoutée dans le ServiceRegistry\n"));
-										System.out.println(Decodage.decoder(ServiceRegistry.toStringue()));
+										urlcl = null;
 										break;
 
 									// 2 : Mise à jour de la classe donnée
 									case "2":
+										urlcl = new URLClassLoader(new URL[] { new URL("ftp://localhost:2121/") });
 										out.println(Decodage.encoder(
 												"Donnez le nom de la classe à mettre à jour (situé dans votre repository et dans le ServiceRegistry):"));
 										String classeName2 = in.readLine();
@@ -129,12 +136,13 @@ public class ServiceBRi implements Runnable {
 										if (!ServiceRegistry.containsClass(classeUpdate)) {
 											out.print(
 													Decodage.encoder("Classe non présente, mise à jour impossible\n"));
+											urlcl=null;
 											break;
 										}
 										ServiceRegistry.replaceService(classeUpdate);
 										out.print(Decodage.encoder("Classe " + classeUpdate.getSimpleName()
 												+ " mise à jour dans le ServiceRegistry\n"));
-										System.out.println(Decodage.decoder(ServiceRegistry.toStringue()));
+										urlcl=null;
 										break;
 
 									// 3 : Changement de l'adresse ftp du programmeur
@@ -155,12 +163,14 @@ public class ServiceBRi implements Runnable {
 										switch (repArretDem) {
 
 										case "1":
+											urlcl = new URLClassLoader(new URL[] { new URL("ftp://localhost:2121/") });
 											out.println(Decodage
 													.encoder(ServiceRegistry.toStringue() + "\nTapez le numéro de service désiré :"));
 											int choixDem = Integer.parseInt(in.readLine());
 											Class<? extends Service> classeStart = ServiceRegistry.getServiceClass(choixDem);
 											if (ServiceRegistry.getEtatService(classeStart) == true) {
 												out.print(Decodage.encoder("Le service est déjà démarré \n"));
+												urlcl=null;
 												break;
 											}
 											if (ServiceRegistry.changeService(classeStart, true)) {
@@ -168,6 +178,7 @@ public class ServiceBRi implements Runnable {
 											} else {
 												out.print(Decodage.encoder("Erreur de démarrage \n"));
 											}
+											urlcl = null;
 											break;
 										case "2":
 											out.println(Decodage
@@ -191,15 +202,15 @@ public class ServiceBRi implements Runnable {
 										break;
 
 									// 5 : Désinstallation d'un service
-									case "5:":
-										out.println(Decodage.encoder("Quel service à désinstaller ?"));
-										String repDesinstal = in.readLine();
-										urlcl = customCl.uninstallClass(repDesinstal, urlcl);
-										if (urlcl.equals(null)) {
-											out.print(Decodage.encoder("Desinstallation impossible"));
+									case "5":
+										out.println(Decodage.encoder(ServiceRegistry.toStringue() + "\nQuel service à désinstaller ?"));
+										int choixDesinstall = Integer.parseInt(in.readLine());
+
+										if(ServiceRegistry.removeService(ServiceRegistry.getServiceClass(choixDesinstall))) {
+											out.print(Decodage.encoder("Désinstallation impossible\n"));
 											break;
 										}
-										out.print(Decodage.encoder("Désinstallation effectuée"));
+										out.print(Decodage.encoder("Désinstallation effectuée, le service n'est plus dans le ServiceRegistry\n"));
 										break;
 									// Non reconnu / rien : on sort du switch
 									default:
