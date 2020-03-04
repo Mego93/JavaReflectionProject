@@ -12,15 +12,16 @@ import java.net.*;
 public class ServeurBRi implements Runnable {
 
 	private ServerSocket listen_socket;
-
+	private IServiceBRi serviceBRi;
 	/**
 	 * Crée un serveur TCP
 	 * 
 	 * @throws IOException
 	 */
-	public ServeurBRi(int port) {
+	public ServeurBRi(int port, IServiceBRi s) {
 		try {
 			listen_socket = new ServerSocket(port);
+			this.serviceBRi = s;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -32,8 +33,11 @@ public class ServeurBRi implements Runnable {
 	 */
 	public void run() {
 		try {
-			while(true)
-			new ServiceBRi(listen_socket.accept()).start();
+			while(true) {
+		//	new ServiceBRi(listen_socket.accept()).start();
+			this.serviceBRi.setSocket(listen_socket.accept());
+			this.serviceBRi.run();
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -1,28 +1,24 @@
-/**
- * Classe de service dédiée aux programmeurs BRi
- * @author VO Thierry & VYAS Ishan
- * @version 3.5
- */
-package bri;
+package servicesBRi;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.net.URL;
+import java.net.URLClassLoader;
 
+import bri.IServiceBRi;
 import bri.Programmer;
 import bri.ProgrammerRegistry;
 import bri.Service;
 import bri.ServiceRegistry;
 import codage.Decodage;
 
-public class ServiceBRi implements Runnable {
-	private final static int PORT_SERVICE = 3000;
-	private final static int PORT_PROG = 3500;
+public class ServiceProgBRi implements IServiceBRi {
+
 	private Socket client;
 
-	public ServiceBRi(Socket socket) {
-		client = socket;
-
-	}
 
 	/* L'URLClassLoader est déclaré avant le switch et déclaré
 	 * lors des ajouts/majs de services avant d'être mis à null
@@ -41,47 +37,7 @@ public class ServiceBRi implements Runnable {
 
 			String error = "";
 			System.out.println("Connexion d'un client au port : " + client.getLocalPort());
-			switch (client.getLocalPort()) {
 
-			case PORT_SERVICE:
-				do {
-					try {
-
-						// Le client tape le numéro du service de son choix
-						out.println(Decodage
-								.encoder(ServiceRegistry.toStringue() + "\nTapez le numéro de service désiré :"));
-						int choix = Integer.parseInt(in.readLine());
-						if (ServiceRegistry.containsClass(ServiceRegistry.getServiceClass(choix))) {
-							System.out.println("Contenu");
-							if (ServiceRegistry.getEtatService(ServiceRegistry.getServiceClass(choix))) {
-								System.out.println("Démarré");
-								try {
-									ServiceRegistry.getServiceClass(choix).getConstructor(Socket.class)
-											.newInstance(client).run();
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							} else {
-								System.out.println("Non démarré");
-								out.print(Decodage.encoder("Service non démarré\n"));
-							}
-						} else {
-							System.out.println("Inconnu");
-							out.print(Decodage.encoder("Service inconnu\n"));
-						}
-
-						// Fin du service
-						out.println(Decodage.encoder("Voulez vous arreter ou vous déconnecter ? (stop/deco)"));
-						String arretProg = in.readLine();
-						if (arretProg.equals("stop"))
-							stop = true;
-					} catch (Exception e) {
-						// Fin du service
-					}
-				} while (!stop);
-				break;
-
-			case PORT_PROG:
 				do {
 					try {
 						boolean passwordError = false;
@@ -255,11 +211,6 @@ public class ServiceBRi implements Runnable {
 						out.print(Decodage.encoder("Exception attrapée, veuillez relancer\n"));
 					} 
 				} while (!stop);
-				break;
-			default:
-				out.println(Decodage.encoder("Erreur"));
-				break;
-			}
 			try {
 				client.close();
 			} catch (IOException e2) {
@@ -285,4 +236,7 @@ public class ServiceBRi implements Runnable {
 		(new Thread(this)).start();
 	}
 
+	public void setSocket(Socket s) {
+		this.client = s;
+	}
 }
