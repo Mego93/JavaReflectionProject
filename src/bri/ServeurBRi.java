@@ -28,15 +28,13 @@ public class ServeurBRi implements Runnable {
 	}
 
 	/**
-	 * Le serveur écoute et accepte les connexions. Chaque connexion, il crée le
-	 * service de Programmeur BRi qui va la traiter
+	 * Le serveur écoute et accepte les connexions.
 	 */
 	public void run() {
 		try {
 			while(true) {
-		//	new ServiceBRi(listen_socket.accept()).start();
 			this.serviceBRi.setSocket(listen_socket.accept());
-			this.serviceBRi.run();
+			new Thread(serviceBRi).start();
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
