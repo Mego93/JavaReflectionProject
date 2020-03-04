@@ -1,3 +1,10 @@
+/**
+ * Classe de service dédiée aux amateurs BRi
+ * @author VO Thierry & RISI Lucas
+ * @version 3.5
+ */
+
+
 package servicesBRi;
 
 import java.io.BufferedReader;
@@ -5,13 +12,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.URL;
-import java.net.URLClassLoader;
 
 import bri.IServiceBRi;
-import bri.Programmer;
-import bri.ProgrammerRegistry;
-import bri.Service;
 import bri.ServiceRegistry;
 import codage.Decodage;
 
@@ -26,15 +28,12 @@ public class ServiceAmaBRi implements IServiceBRi {
 	 * l'urlcl référencé à null
 	 */
 
-	@SuppressWarnings("unchecked")
 	public void run() {
 		try {
-			URLClassLoader urlcl;
 			BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 			PrintWriter out = new PrintWriter(client.getOutputStream(), true);
 			boolean stop = false;
 
-			String error = "";
 			System.out.println("Connexion d'un client au port : " + client.getLocalPort());
 			do {
 				try {

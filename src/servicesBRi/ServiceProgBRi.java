@@ -1,3 +1,9 @@
+/**
+ * Classe de service dédiée aux programmeurs BRi
+ * @author VO Thierry & RISI Lucas
+ * @version 3.5
+ */
+
 package servicesBRi;
 
 import java.io.BufferedReader;
