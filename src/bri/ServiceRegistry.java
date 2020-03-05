@@ -22,7 +22,7 @@ public class ServiceRegistry {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		classesEtat.put(c, false);
+		classesEtat.put(c, true);
 	}
 
 /**
