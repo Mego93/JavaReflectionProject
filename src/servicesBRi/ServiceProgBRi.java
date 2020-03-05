@@ -124,14 +124,17 @@ public class ServiceProgBRi implements IServiceBRi {
 										switch (repArretDem) {
 
 										case "1":
-											urlcl = new URLClassLoader(new URL[] { new URL("ftp://localhost:2121/") });
 											out.println(Decodage
-													.encoder(ServiceRegistry.toStringue() + "\nTapez le numéro de service désiré :"));
+													.encoder(ServiceRegistry.toStringue() + "\nTapez le numéro de service désiré (les vôtres !) :"));
 											int choixDem = Integer.parseInt(in.readLine());
 											Class<? extends Service> classeStart = ServiceRegistry.getServiceClass(choixDem);
+
+											if(!p.getLogin().equals(classeStart.getName().substring(0,classeStart.getName().indexOf(".")))) {
+												out.print(Decodage.encoder("Le service à démarrer ne vous appartient pas \n"));
+												break;
+											}
 											if (ServiceRegistry.getEtatService(classeStart) == true) {
 												out.print(Decodage.encoder("Le service est déjà démarré \n"));
-												urlcl=null;
 												break;
 											}
 											if (ServiceRegistry.changeService(classeStart, true)) {
@@ -139,13 +142,17 @@ public class ServiceProgBRi implements IServiceBRi {
 											} else {
 												out.print(Decodage.encoder("Erreur de démarrage \n"));
 											}
-											urlcl = null;
 											break;
 										case "2":
 											out.println(Decodage
-													.encoder(ServiceRegistry.toStringue() + "\nTapez le numéro de service désiré :"));
+													.encoder(ServiceRegistry.toStringue() + "\nTapez le numéro de service désiré (les vôtres !) :"));
 											int choixArret = Integer.parseInt(in.readLine());
 											Class<? extends Service> classeStop = ServiceRegistry.getServiceClass(choixArret);
+											
+											if(!p.getLogin().equals(classeStop.getName().substring(0,classeStop.getName().indexOf(".")))) {
+												out.print(Decodage.encoder("Le service à arrêter ne vous appartient pas \n"));
+												break;
+											}
 											if (ServiceRegistry.getEtatService(classeStop) == false) {
 												out.print(Decodage.encoder("Le service est déjà arrêté \n"));
 												break;
@@ -167,11 +174,18 @@ public class ServiceProgBRi implements IServiceBRi {
 										out.println(Decodage.encoder(ServiceRegistry.toStringue() + "\nQuel service à désinstaller ?"));
 										int choixDesinstall = Integer.parseInt(in.readLine());
 
-										if(ServiceRegistry.removeService(ServiceRegistry.getServiceClass(choixDesinstall))) {
-											out.print(Decodage.encoder("Désinstallation impossible\n"));
+										
+										Class<? extends Service> classeDesinstall = ServiceRegistry.getServiceClass(choixDesinstall);
+
+										if(!p.getLogin().equals(classeDesinstall.getName().substring(0,classeDesinstall.getName().indexOf(".")))) {
+											out.print(Decodage.encoder("Le service à désinstaller ne vous appartient pas \n"));
 											break;
 										}
-										out.print(Decodage.encoder("Désinstallation effectuée, le service n'est plus dans le ServiceRegistry\n"));
+										if(ServiceRegistry.removeService(ServiceRegistry.getServiceClass(choixDesinstall))) {
+											out.print(Decodage.encoder("Désinstallation effectuée, le service n'est plus dans le ServiceRegistry\n"));
+											break;
+										}
+										out.print(Decodage.encoder("Désinstallation impossible\n"));
 										break;
 									// Non reconnu / rien : on sort du switch
 									default:
