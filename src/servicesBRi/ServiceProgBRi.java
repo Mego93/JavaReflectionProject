@@ -15,10 +15,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import bri.IServiceBRi;
-import bri.Programmer;
-import bri.ProgrammerRegistry;
+import bri.UserRegistry;
+import bri.Utilisateur;
 import bri.Service;
 import bri.ServiceRegistry;
+
 import codage.Decodage;
 
 public class ServiceProgBRi implements IServiceBRi {
@@ -48,16 +49,16 @@ public class ServiceProgBRi implements IServiceBRi {
 					try {
 						boolean passwordError = false;
 
-						out.println(Decodage.encoder("Bonjour programmeur , identifiez vous !\nLogin :"));
+						out.println(Decodage.encoder("Bonjour programmeur, identifiez vous !\nLogin :"));
 						String login = in.readLine();
-						// Si le programmer registry ne connait pas le login
-						if (ProgrammerRegistry.containsLogin(login) != null) {
-							Programmer p = ProgrammerRegistry.containsLogin(login);
+						// Si le 'UserRegistry ne connait pas le login
+						if (UserRegistry.containsLogin(login) != null) {
+							Utilisateur p = UserRegistry.containsLogin(login);
 							out.println(Decodage.encoder("Bonjour " + login + ", votre mot de passe : "));
 							String password = in.readLine();
 
 							// Si le login correspond au mot de passe donné
-							if (ProgrammerRegistry.isPassword(p, password)) {
+							if (UserRegistry.isPassword(p, password)) {
 								do {
 									out.println(Decodage.encoder(ServiceRegistry.toStringue()
 											+ "\nQue souhaitez vous faire (écrire le chiffre correspondant ou ne rien écrire si vous voulez passer) ? \n"
@@ -214,7 +215,7 @@ public class ServiceProgBRi implements IServiceBRi {
 						}
 
 						// En cas d'erreur de login / mot de passe
-						if (passwordError | ProgrammerRegistry.containsLogin(login) == null) {
+						if (passwordError | UserRegistry.containsLogin(login) == null) {
 							if (!passwordError) {
 								error = "Login";
 							}

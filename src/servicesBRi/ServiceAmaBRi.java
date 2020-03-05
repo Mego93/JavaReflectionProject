@@ -4,7 +4,6 @@
  * @version 3.5
  */
 
-
 package servicesBRi;
 
 import java.io.BufferedReader;
@@ -15,12 +14,13 @@ import java.net.Socket;
 
 import bri.IServiceBRi;
 import bri.ServiceRegistry;
+import bri.UserRegistry;
+import bri.Utilisateur;
 import codage.Decodage;
 
 public class ServiceAmaBRi implements IServiceBRi {
 
 	private Socket client;
-
 
 	/*
 	 * L'URLClassLoader est déclaré avant le switch et déclaré lors des ajouts/majs
@@ -34,38 +34,75 @@ public class ServiceAmaBRi implements IServiceBRi {
 			PrintWriter out = new PrintWriter(client.getOutputStream(), true);
 			boolean stop = false;
 
+			String error = "";
 			System.out.println("Connexion d'un client au port : " + client.getLocalPort());
 			do {
 				try {
+					boolean passwordError = false;
 
-					// Le client tape le numéro du service de son choix
-					out.println(
-							Decodage.encoder(ServiceRegistry.toStringue() + "\nTapez le numéro de service désiré :"));
-					int choix = Integer.parseInt(in.readLine());
-					if (ServiceRegistry.containsClass(ServiceRegistry.getServiceClass(choix))) {
-						System.out.println("Contenu");
-						if (ServiceRegistry.getEtatService(ServiceRegistry.getServiceClass(choix))) {
-							System.out.println("Démarré");
-							try {
-								ServiceRegistry.getServiceClass(choix).getConstructor(Socket.class).newInstance(client)
-										.run();
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
+					out.println(Decodage.encoder("Bonjour amateur, identifiez vous !\nLogin :"));
+					String login = in.readLine();
+					// Si l'UserRegistry ne connait pas le login
+					if (UserRegistry.containsLogin(login) != null) {
+						Utilisateur p = UserRegistry.containsLogin(login);
+						out.println(Decodage.encoder("Bonjour " + login + ", votre mot de passe : "));
+						String password = in.readLine();
+
+						// Si le login correspond au mot de passe donné
+						if (UserRegistry.isPassword(p, password)) {
+							do {
+								// Le client tape le numéro du service de son choix
+								out.println(Decodage.encoder(
+										ServiceRegistry.toStringue() + "\nTapez le numéro de service désiré :"));
+								int choix = Integer.parseInt(in.readLine());
+								if (ServiceRegistry.containsClass(ServiceRegistry.getServiceClass(choix))) {
+									if (ServiceRegistry.getEtatService(ServiceRegistry.getServiceClass(choix))) {
+										try {
+											ServiceRegistry.getServiceClass(choix).getConstructor(Socket.class)
+													.newInstance(client).run();
+										} catch (Exception e) {
+											e.printStackTrace();
+										}
+									} else {
+										out.print(Decodage.encoder("Service non démarré\n"));
+									}
+								} else {
+									out.print(Decodage.encoder("Service inconnu\n"));
+								}
+
+								// Fin du service
+								out.println(Decodage.encoder(
+										"Fin du service, voulez vous arreter ou vous déconnecter ? (stop/deco/caractère quelconque)"));
+								String arretProg = in.readLine();
+
+								// Déconnexion de l'amateur
+								if (arretProg.equals("deco")) {
+									break;
+									// Arret du service pour amateur
+								} else if (arretProg.equals("stop")) {
+									stop = true;
+									break;
+								}
+							} while (true);
 						} else {
-							System.out.println("Non démarré");
-							out.print(Decodage.encoder("Service non démarré\n"));
+							passwordError = true;
+							error = "Mot de passe";
 						}
-					} else {
-						System.out.println("Inconnu");
-						out.print(Decodage.encoder("Service inconnu\n"));
 					}
 
-					// Fin du service
-					out.println(Decodage.encoder("Voulez vous arreter ou vous déconnecter ? (stop/deco)"));
-					String arretProg = in.readLine();
-					if (arretProg.equals("stop"))
-						stop = true;
+					// En cas d'erreur de login / mot de passe
+					if (passwordError | UserRegistry.containsLogin(login) == null) {
+						if (!passwordError) {
+							error = "Login";
+						}
+
+						// Demande à l'amateur
+						out.println(Decodage.encoder(
+								error + " inconnu, voulez vous arreter ou réessayer ? (stop/caractère quelconque)"));
+						String arretLogin = in.readLine();
+						if (arretLogin.equals("stop"))
+							stop = true;
+					}
 				} catch (Exception e) {
 					// Fin du service
 				}
