@@ -39,18 +39,12 @@ public class BRiLaunch {
 		UserRegistry.getUserList().add(ama1);
 		UserRegistry.getUserList().add(ama2);
 
-<<<<<<< Updated upstream
+
 
 		new Thread(new ServeurBRi(PORT_PROG, new ServiceProgBRi())).start();
 		System.out.println("Serveur pour programmeurs lancé, port " + PORT_PROG);
 		new Thread(new ServeurBRi(PORT_SERVICE, new ServiceAmaBRi())).start();
 		System.out.println("Serveur pour amateurs lancé, port " + PORT_SERVICE);
-=======
-		new Thread(new ServeurBRi(PORT_PROG)).start();
-		System.out.println("Serveur pour programmeurs lancé, port "+ PORT_PROG  );	
-		new Thread(new ServeurBRi(PORT_SERVICE)).start();
-		System.out.println("Serveur pour amateurs lancé, port "+ PORT_SERVICE );	
->>>>>>> Stashed changes
-
+	
 	}
 }
