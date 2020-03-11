@@ -35,7 +35,7 @@ public class ServiceAmaBRi implements IServiceBRi {
 			boolean stop = false;
 
 			String error = "";
-			System.out.println("Connexion d'un client au port : " + client.getLocalPort());
+		//	System.out.println("Connexion d'un client au port : " + client.getLocalPort());
 			do {
 				try {
 					boolean passwordError = false;
