@@ -1,3 +1,9 @@
+/**
+ * Classe de test pour la norme BLTi
+ * @author VO Thierry & RISI Lucas
+ * @version 1.5
+ */
+
 package bri;
 
 import java.lang.reflect.Constructor;
@@ -10,7 +16,7 @@ import codage.Decodage;
 
 public class TestBRi {
 
-	static void validation(Class<?> classe) throws Exception {
+	public static String validation(Class<?> classe) {
 		int i = classe.getModifiers();
 		StringBuilder sb = new StringBuilder();
 		boolean verifServ = false;
@@ -76,7 +82,9 @@ public class TestBRi {
 		}
 
 		if (!verifGen)
-			throw new Exception(Decodage.encoder(sb.toString() + " La classe ne respecte pas la norme BLTi"));
-	}
+			return (Decodage.encoder(sb.toString() + "La classe ne respecte pas la norme BLTi\n"));
 
+		return "OK";
+
+	}
 }

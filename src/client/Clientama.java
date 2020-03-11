@@ -1,3 +1,9 @@
+/**
+ * Classe d'application dédiée aux amateurs BRi
+ * @author VO Thierry & RISI Lucas
+ * @version 3.5
+ */
+
 package client;
 
 import java.io.BufferedReader;

@@ -1,3 +1,9 @@
+/**
+ * Classe de programmeur
+ * @author VO Thierry & RISI Lucas
+ * @version 2.0
+ */
+
 package utilisateurs;
 
 import bri.Utilisateur;

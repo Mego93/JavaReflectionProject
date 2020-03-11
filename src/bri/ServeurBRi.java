@@ -1,5 +1,5 @@
 /**
- * Classe permettant le lancement d'un serveur pour programmeurs BRi
+ * Classe permettant le lancement d'un serveur BRi
  * @author VO Thierry & RISI Lucas
  * @version 1.0
  */

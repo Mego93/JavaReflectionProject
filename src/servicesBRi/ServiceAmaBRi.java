@@ -51,24 +51,28 @@ public class ServiceAmaBRi implements IServiceBRi {
 						// Si le login correspond au mot de passe donné
 						if (UserRegistry.isPassword(p, password)) {
 							do {
+								do {
 								// Le client tape le numéro du service de son choix
 								out.println(Decodage.encoder(
-										ServiceRegistry.toStringue() + "\nTapez le numéro de service désiré :"));
-								int choix = Integer.parseInt(in.readLine());
-								if (ServiceRegistry.containsClass(ServiceRegistry.getServiceClass(choix))) {
-									if (ServiceRegistry.getEtatService(ServiceRegistry.getServiceClass(choix))) {
-										try {
-											ServiceRegistry.getServiceClass(choix).getConstructor(Socket.class)
-													.newInstance(client).run();
-										} catch (Exception e) {
-											e.printStackTrace();
+										ServiceRegistry.toStringue() + "\nTapez le numéro de service désiré, n'importe quel autre caractère pour actualiser :"));
+							
+									try {
+										int choix = Integer.parseInt(in.readLine());
+										if (ServiceRegistry.containsClass(ServiceRegistry.getServiceClass(choix))) {
+											if (ServiceRegistry
+													.getEtatService(ServiceRegistry.getServiceClass(choix))) {
+												ServiceRegistry.getServiceClass(choix).getConstructor(Socket.class)
+														.newInstance(client).run();
+												break;
+											} else {
+												out.print(Decodage.encoder("Service non démarré\n"));
+											}
+										} else {
+											out.print(Decodage.encoder("Service inconnu\n"));
 										}
-									} else {
-										out.print(Decodage.encoder("Service non démarré\n"));
+									} catch (Exception e) {
 									}
-								} else {
-									out.print(Decodage.encoder("Service inconnu\n"));
-								}
+								} while (true);
 
 								// Fin du service
 								out.println(Decodage.encoder(
@@ -104,6 +108,7 @@ public class ServiceAmaBRi implements IServiceBRi {
 							stop = true;
 					}
 				} catch (Exception e) {
+					out.print(Decodage.encoder("Exception attrapée, reessayez\n"));
 					// Fin du service
 				}
 			} while (!stop);

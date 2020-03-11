@@ -1,3 +1,9 @@
+/**
+ * Classe d'application de lancement 
+ * @author VO Thierry & RISI Lucas
+ * @version 3.5
+ */
+
 package appli;
 
 import java.net.MalformedURLException;

@@ -1,3 +1,9 @@
+/**
+ * Classe contenant les services 
+ * @author VO Thierry & RISI Lucas
+ * @version 2.5
+ */
+
 package bri;
 
 import java.util.HashMap;
@@ -12,26 +18,28 @@ public class ServiceRegistry {
 	}
 	private static HashMap<Class<?>, Boolean> classesEtat;
 
-/**
- * Ajoute une classe de service après test de norme BLTi
- * @param La classe de service c à ajouter
- */
-	public static void addService(Class<?> c) {
-		try {
-			TestBRi.validation(c);
-		} catch (Exception e) {
-			e.printStackTrace();
+	/**
+	 * Ajoute une classe de service après test de norme BLTi
+	 * 
+	 * @param La classe de service c à ajouter
+	 * @return Un booléen de succès ou d'échec par le test BLTIi
+	 */
+	public static boolean addService(Class<?> c) {
+		if (TestBRi.validation(c).equals("OK")) {
+			classesEtat.put(c, true);
+			return true;
 		}
-		classesEtat.put(c, true);
+		return false;
 	}
 
-/**
- * Renvoie la classe de service à l'indice en paramètre
- * @param L'indice numService
- * @return La classe de service
- * @throws InstantiationException
- * @throws IllegalAccessException
- */
+	/**
+	 * Renvoie la classe de service à l'indice en paramètre
+	 * 
+	 * @param L'indice numService
+	 * @return La classe de service
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
 	@SuppressWarnings("unchecked")
 	public static Class<? extends Service> getServiceClass(int numService)
 			throws InstantiationException, IllegalAccessException {
@@ -41,6 +49,7 @@ public class ServiceRegistry {
 
 	/**
 	 * Renvoie l'état de la classe de service
+	 * 
 	 * @param La classe en question
 	 * @return Un booléen de l'état
 	 */
@@ -50,6 +59,7 @@ public class ServiceRegistry {
 
 	/**
 	 * Enlève la classe de service du ServiceRegistry
+	 * 
 	 * @param La classe de service c à enlever
 	 * @return Un booléan de succès ou échec
 	 */
@@ -59,13 +69,14 @@ public class ServiceRegistry {
 				classesEtat.remove(classUpdate.getKey());
 				return true;
 			}
-			
+
 		}
 		return false;
 	}
 
 	/**
 	 * Renvoie la Map des services et leurs états
+	 * 
 	 * @return La HashMap
 	 */
 	public static HashMap<Class<?>, Boolean> getClassesEtat() {
@@ -73,8 +84,8 @@ public class ServiceRegistry {
 	}
 
 	/**
-	 * Renvoie vrai ou faux si la classe est contenue dans le
-	 * ServiceRegistry
+	 * Renvoie vrai ou faux si la classe est contenue dans le ServiceRegistry
+	 * 
 	 * @param La classe c en question
 	 * @return Un booléen de présence
 	 */
@@ -83,16 +94,16 @@ public class ServiceRegistry {
 			return true;
 		return false;
 	}
-	
+
 	/**
-	 * Remplace la classe de service contenue dans le ServiceRegistry
-	 * par celle en paramètre
+	 * Remplace la classe de service contenue dans le ServiceRegistry par celle en
+	 * paramètre
 	 * @param La classe de service c à mettre à jour
 	 * @return Un booléen de succès ou d'échec
 	 */
 	public static boolean replaceService(Class<?> c) {
 		for (Entry<Class<?>, Boolean> classRemove : classesEtat.entrySet()) {
-			if (classRemove.getKey().getName().contentEquals(c.getName()) && !classRemove.getKey().equals(c)) {
+			if (classRemove.getKey().getName().contentEquals(c.getName())) {
 				classesEtat.remove(c);
 				break;
 			} else {
@@ -105,6 +116,7 @@ public class ServiceRegistry {
 
 	/**
 	 * Change l'état de la classe de service, allumé ou éteint
+	 * 
 	 * @param La classe de service c
 	 * @param Un booléen état
 	 * @return Un booléen de comparaison en cas de succès/échec
@@ -119,6 +131,7 @@ public class ServiceRegistry {
 
 	/**
 	 * Renvoie la liste des activités présentes, démarrées ou arrêtées
+	 * 
 	 * @return un String de la liste
 	 */
 	public static String toStringue() {

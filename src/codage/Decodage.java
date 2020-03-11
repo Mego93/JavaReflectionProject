@@ -1,3 +1,8 @@
+/**
+ * Classe de codage pour caractères de fin de ligne
+ * @author VO Thierry & RISI Lucas
+ * @version 1.0
+ */
 package codage;
 
 public class Decodage {

@@ -1,3 +1,9 @@
+/**
+ * Classe contenant les utilisateurs
+ * @author VO Thierry & RISI Lucas
+ * @version 2.0
+ */
+
 package bri;
 
 import java.util.List;
