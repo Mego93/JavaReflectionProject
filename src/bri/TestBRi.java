@@ -1,3 +1,9 @@
+/**
+ * Classe de test pour la norme BLTi
+ * @author VO Thierry & RISI Lucas
+ * @version 1.5
+ */
+
 package bri;
 
 import java.lang.reflect.Constructor;
@@ -6,9 +12,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.Socket;
 
+import codage.Decodage;
+
 public class TestBRi {
 
-	static void validation(Class<?> classe) throws Exception {
+	public static String validation(Class<?> classe) {
 		int i = classe.getModifiers();
 		StringBuilder sb = new StringBuilder();
 		boolean verifServ = false;
@@ -19,7 +27,7 @@ public class TestBRi {
 		boolean verifGen = true;
 		if (!Modifier.isPublic(i)) {
 			verifGen = false;
-			sb.append("Classe non publique ##");
+			sb.append("Classe non publique \n");
 		}
 		for (Class<?> c : classe.getInterfaces()) {
 			if (c.getSimpleName().equals("Service")) {
@@ -29,7 +37,7 @@ public class TestBRi {
 		}
 		if (!verifServ) {
 			verifGen = false;
-			sb.append("N'h?rite pas de BRi.Service ##");
+			sb.append("N'implémente pas de BRi.Service \n");
 		}
 		Constructor<?>[] j = classe.getConstructors();
 		for (Constructor<?> con : j) {
@@ -47,7 +55,7 @@ public class TestBRi {
 		}
 		if (!verifParam2) {
 			verifGen = false;
-			sb.append("Ne poss?de pas de constructeur public avec socket en parametre et sans exception ##");
+			sb.append("Ne possède pas de constructeur public avec socket en parametre et sans exception \n");
 		}
 
 		for (Field f : classe.getDeclaredFields()) {
@@ -58,7 +66,7 @@ public class TestBRi {
 			}
 			if (!verifField) {
 				verifGen = false;
-				sb.append("Ne poss?de pas de private final Socket ##");
+				sb.append("Ne possède pas de private final Socket \n");
 			}
 		}
 
@@ -70,11 +78,13 @@ public class TestBRi {
 			}
 		if (!verifMethod) {
 			verifGen = false;
-			sb.append("Ne poss?de pas de m?thode toStringue sans exception ##");
+			sb.append("Ne possède pas de méthode toStringue sans exception \n");
 		}
 
 		if (!verifGen)
-			throw new Exception(sb.toString() + " NE RESPECTE PAS LA NORME");
-	}
+			return (Decodage.encoder(sb.toString() + "La classe ne respecte pas la norme BLTi\n"));
 
+		return "OK";
+
+	}
 }
